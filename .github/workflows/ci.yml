@@ -1,0 +1,31 @@
+name: Windows 11 Safe Optimizer CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: PowerShell AST syntax check
+        shell: pwsh
+        run: |
+          $errors = $null
+          foreach ($f in Get-ChildItem -Filter *.ps1) {
+            $tokens = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$tokens, [ref]$errors)
+            if ($errors -and $errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$($f.Name): $_" }
+              exit 1
+            }
+            Write-Host "AST OK: $($f.Name)"
+          }
+      - name: Python syntax check
+        run: python -m compileall -q migrate_edge_to_brave.py sync_history_when_brave_closed.py

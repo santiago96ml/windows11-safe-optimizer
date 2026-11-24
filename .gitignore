@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+backup_brave_profile/
+staged_brave_dbs/
+backup_reg/
+backups/
+*.reg
+*.csv
+*.json
+*.log
+.pytest_cache/
+.env
